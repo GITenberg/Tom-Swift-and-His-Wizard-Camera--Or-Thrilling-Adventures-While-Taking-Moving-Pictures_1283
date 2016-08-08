@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: OqN8t5JoHlB7bUHU6pnXpKqRAs5JUm4WK9l6AZaoslJGt4LnZnRAtoRzNDShpacp1xKkEotm2iXgfeZtQEmSynxMibefAtGouKTrBZQk+cfh/HH9Ho/u3+VBkAOYoVQ+tzRQpbKbr069cUv1x7RRxVGtRqYvrTJy3jD2b5z/GXiyS5mXWX/WgxU8Yecp3ymilWlTF9hj/N9vuHeRL5NxybuwYhZkUdKcGdOzs1aLWgKJVe5zlXrTaKLWH3HL6nxfH8XpxQaN5bJ7JW+9MJjN9DKcEj5nZ4Qe8t5Kwm5sglAkclTBmzUX7V8+/Bxf00dfJlV0amcBKp1QlWeC99/ymi9s7YjLdl8I1Wsso8hbLZmaEEGSfTZJiWs/e/zilj1AigRXMjESL2eQMuxM82TYuXCBNoT04bitMlhyJ3O2042fNlsB44IMgzqMW26VKHUk3IvCsv47py0lmeyXXJr46zYZ/UKvbx249Hlu8af+Th55NFnadgRb+0+OXd2J3G9V1skkmmoH4AAUIY9n/KfFV01/FcjQFD0ht2WcaU3oEI6dnH2T/WhaNTCjQM3mSWjHwHpFYSGnY2hbtpJDXb9tdbXBOVd+UvWQ0WRohsgs2Kf4DrjumJk1dNJQx/6bD92kHP9ZK+TWh55oL4DTvwp6jsV+tZTg/N3lXv0Vvw1DJ18=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Tom-Swift-and-His-Wizard-Camera--Or-Thrilling-Adventures-While-Taking-Moving-Pictures_1283
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
